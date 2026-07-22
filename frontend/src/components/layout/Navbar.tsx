@@ -22,6 +22,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
         return "Task Board";
       case "/timeline":
         return "Milestone Timeline";
+      case "/milestones":
+        return "Milestones Management";
       case "/scope":
         return "Scope Guardian";
       case "/risk":

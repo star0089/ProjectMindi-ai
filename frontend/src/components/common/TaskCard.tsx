@@ -1,11 +1,10 @@
 import React from "react";
-import type { Task } from "../../types";
+import type { Task, TaskStatus } from "../../types";
 import { Calendar, User, ArrowUpRight } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 interface TaskCardProps {
   task: Task;
-  onStatusChange?: (id: number, newStatus: Task["status"]) => void;
   onClick?: () => void;
 }
 
@@ -22,18 +21,20 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   };
 
   // Status badge styles
-  const statusLabels = {
+  const statusLabels: Record<TaskStatus, string> = {
     todo: "To Do",
     in_progress: "In Progress",
     review: "In Review",
+    testing: "Testing",
     done: "Completed",
   };
 
-  const statusDotColors = {
+  const statusDotColors: Record<TaskStatus, string> = {
     todo: "bg-slate-400",
     in_progress: "bg-violet-500",
     review: "bg-indigo-500",
-    done: "bg-green-500",
+    testing: "bg-amber-500",
+    done: "bg-emerald-500",
   };
 
   const formatDate = (dateStr: string | null) => {
@@ -56,13 +57,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       <div className="flex items-center justify-between mb-3.5">
         <span className={cn(
           "px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider",
-          priorityStyles[task.priority]
+          priorityStyles[task.priority] || priorityStyles.medium
         )}>
           {task.priority}
         </span>
         <div className="flex items-center gap-1.5 text-xs font-semibold">
-          <span className={cn("w-1.5 h-1.5 rounded-full", statusDotColors[task.status])} />
-          <span className="text-muted-foreground">{statusLabels[task.status]}</span>
+          <span className={cn("w-1.5 h-1.5 rounded-full", statusDotColors[task.status] || statusDotColors.todo)} />
+          <span className="text-muted-foreground">{statusLabels[task.status] || task.status}</span>
         </div>
       </div>
 

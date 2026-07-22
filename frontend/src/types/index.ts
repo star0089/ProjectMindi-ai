@@ -1,5 +1,5 @@
-export type ProjectStatus = "planning" | "active" | "completed" | "on_hold";
-export type TaskStatus = "todo" | "in_progress" | "review" | "done";
+export type ProjectStatus = "planning" | "active" | "on_hold" | "completed" | "cancelled";
+export type TaskStatus = "todo" | "in_progress" | "review" | "testing" | "done";
 export type TaskPriority = "low" | "medium" | "high" | "critical";
 export type RiskSeverity = "low" | "medium" | "high" | "critical";
 export type RiskStatus = "identified" | "mitigated" | "triggered" | "resolved";
@@ -13,6 +13,13 @@ export interface Project {
   deadline: string | null; // ISO Date String
   created_at: string;
   updated_at: string;
+  progress_percentage: number;
+  completed_tasks_count: number;
+  pending_tasks_count: number;
+  total_tasks_count: number;
+  overdue_tasks_count: number;
+  milestones_count: number;
+  completed_milestones_count: number;
 }
 
 export interface Task {
@@ -25,6 +32,7 @@ export interface Task {
   assignee: string | null;
   start_date: string | null;
   end_date: string | null;
+  project_name?: string | null;
 }
 
 export interface Milestone {
@@ -33,6 +41,7 @@ export interface Milestone {
   title: string;
   deadline: string | null;
   completed: boolean;
+  project_name?: string | null;
   phase?: string;
 }
 
@@ -63,54 +72,24 @@ export interface ChatHistory {
 }
 
 export interface DashboardSummary {
-  project_health: {
-    status: string;
-    score: number;
-    description: string;
+  stats: {
+    total_projects: number;
+    active_projects: number;
+    completed_projects: number;
+    total_tasks: number;
+    completed_tasks: number;
+    pending_tasks: number;
+    overdue_tasks: number;
+    active_milestones: number;
+    overall_progress_percentage: number;
   };
-  overall_progress: {
-    percentage: number;
-    completed_milestones: number;
-    total_milestones: number;
-  };
-  tasks_summary: {
-    completed: number;
-    in_progress: number;
-    todo: number;
-    total: number;
-  };
+  recent_projects: Project[];
+  recent_tasks: Task[];
   upcoming_deadlines: Array<{
-    id: number;
+    id: string;
     title: string;
     deadline: string;
     type: "milestone" | "task";
-  }>;
-  active_risks: {
-    count: number;
-    severity_breakdown: Record<RiskSeverity, number>;
-    items: Array<{
-      id: number;
-      title: string;
-      severity: RiskSeverity;
-      status: string;
-    }>;
-  };
-  scope_health: {
-    percentage: number;
-    total_requirements: number;
-    implemented: number;
-    creep_detected: boolean;
-  };
-  recent_ai_insights: Array<{
-    id: number;
-    category: "risk" | "progress" | "scope" | "general";
-    text: string;
-    timestamp: string;
-  }>;
-  recent_activity: Array<{
-    id: number;
-    user: string;
-    action: string;
-    timestamp: string;
+    project_name?: string | null;
   }>;
 }

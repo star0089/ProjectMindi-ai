@@ -1,79 +1,153 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { projectService } from "../services/api";
+import type { Project, ProjectStatus } from "../types";
 import { ProjectCard } from "../components/project/ProjectCard";
+import { ProjectModal } from "../components/project/ProjectModal";
+import { ProjectDetailsDrawer } from "../components/project/ProjectDetailsDrawer";
+import { DeleteConfirmModal } from "../components/common/DeleteConfirmModal";
 import { LoadingSkeleton } from "../components/common/LoadingSkeleton";
 import { EmptyState } from "../components/common/EmptyState";
-import { FolderKanban, Plus, X } from "lucide-react";
+import { useToast } from "../hooks/useToast";
+import { FolderKanban, Plus, Search, Filter, ArrowUpDown } from "lucide-react";
 
 export const Projects: React.FC = () => {
   const queryClient = useQueryClient();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [projectName, setProjectName] = useState("");
-  const [projectDesc, setProjectDesc] = useState("");
-  const [projectDeadline, setProjectDeadline] = useState("");
+  const { toast } = useToast();
 
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("created_at");
+
+  // Modals state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [deletingProject, setDeletingProject] = useState<Project | null>(null);
+  const [drawerProject, setDrawerProject] = useState<Project | null>(null);
+
+  // Fetch projects from DB
   const { data: projects, isLoading, error } = useQuery({
-    queryKey: ["projects"],
-    queryFn: projectService.getProjects,
+    queryKey: ["projects", search, statusFilter, sortBy],
+    queryFn: () => projectService.getProjects({ search, status: statusFilter, sort_by: sortBy }),
   });
 
-  const createProjectMutation = useMutation({
+  // Mutations
+  const createMutation = useMutation({
     mutationFn: projectService.createProject,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardSummary"] });
       setIsModalOpen(false);
-      setProjectName("");
-      setProjectDesc("");
-      setProjectDeadline("");
+      toast("Project created successfully!", "success");
     },
+    onError: () => toast("Failed to create project", "error")
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!projectName.trim()) return;
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<Project> }) => projectService.updateProject(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardSummary"] });
+      setIsModalOpen(false);
+      setEditingProject(null);
+      toast("Project updated successfully!", "success");
+    },
+    onError: () => toast("Failed to update project", "error")
+  });
 
-    createProjectMutation.mutate({
-      name: projectName,
-      description: projectDesc || null,
-      status: "active",
-      deadline: projectDeadline || null,
-    });
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => projectService.deleteProject(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardSummary"] });
+      setDeletingProject(null);
+      toast("Project deleted successfully", "info");
+    },
+    onError: () => toast("Failed to delete project", "error")
+  });
+
+  const handleCreateOrUpdate = (data: { name: string; description: string | null; status: ProjectStatus; deadline: string | null }) => {
+    if (editingProject) {
+      updateMutation.mutate({ id: editingProject.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
   };
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-page-fade">
-        {[1, 2, 3].map((i) => (
-          <LoadingSkeleton key={i} variant="card" />
-        ))}
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-8 animate-page-fade">
-      {/* Portfolio header */}
-      <div className="flex items-center justify-between gap-4 pb-4 border-b">
-        <div>
-          <h2 className="text-base text-muted-foreground">Manage your hackathon portfolio projects</h2>
+    <div className="space-y-6 animate-page-fade">
+      {/* Action Header & Search/Filter Controls */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b">
+        <div className="flex flex-wrap items-center gap-3 flex-1">
+          {/* Search bar */}
+          <div className="relative flex-1 min-w-[200px] max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search projects by title or scope..."
+              className="w-full pl-9 pr-4 py-2 rounded-xl border bg-card text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+
+          {/* Filter Dropdown */}
+          <div className="flex items-center gap-2 bg-card border rounded-xl px-3 py-2 text-xs">
+            <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-transparent focus:outline-none font-medium cursor-pointer"
+            >
+              <option value="all">All Statuses</option>
+              <option value="planning">Planning</option>
+              <option value="active">Active</option>
+              <option value="on_hold">On Hold</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-2 bg-card border rounded-xl px-3 py-2 text-xs">
+            <ArrowUpDown className="w-4 h-4 text-muted-foreground shrink-0" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-transparent focus:outline-none font-medium cursor-pointer"
+            >
+              <option value="created_at">Newest First</option>
+              <option value="name">Name A-Z</option>
+              <option value="deadline">Deadline</option>
+              <option value="progress">Progress %</option>
+            </select>
+          </div>
         </div>
+
+        {/* Create Project Trigger */}
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-primary text-primary-foreground shadow hover:bg-primary/95 transition-all"
+          onClick={() => { setEditingProject(null); setIsModalOpen(true); }}
+          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-primary text-primary-foreground shadow hover:bg-primary/95 transition-all shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>New Project</span>
         </button>
       </div>
 
-      {error || !projects || projects.length === 0 ? (
+      {/* Grid List */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <LoadingSkeleton key={i} variant="card" />
+          ))}
+        </div>
+      ) : error || !projects || projects.length === 0 ? (
         <EmptyState
-          title="No Projects Initiated"
-          description="Create your first project configuration to spin up tasks, timelines and risk mitigations."
+          title="No Projects Found"
+          description="Create your first project specification to begin tracking tasks, progress meters, and deadlines."
           icon={FolderKanban}
           actionLabel="Create Project"
-          onAction={() => setIsModalOpen(true)}
+          onAction={() => { setEditingProject(null); setIsModalOpen(true); }}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -81,87 +155,37 @@ export const Projects: React.FC = () => {
             <ProjectCard
               key={project.id}
               project={project}
-              taskCount={project.id === 1 ? 4 : 0}
-              completedTasks={project.id === 1 ? 1 : 0}
+              onEdit={(p) => { setEditingProject(p); setIsModalOpen(true); }}
+              onDelete={(p) => setDeletingProject(p)}
+              onViewDetails={(p) => setDrawerProject(p)}
             />
           ))}
         </div>
       )}
 
-      {/* Creation Modal Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="w-full max-w-md p-6 bg-card text-card-foreground border rounded-2xl shadow-premium animate-scale-in">
-            <div className="flex items-center justify-between mb-6 pb-2 border-b">
-              <h3 className="font-sans font-bold text-lg">Add Project Specification</h3>
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="p-1 rounded-lg hover:bg-secondary text-muted-foreground"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* Modals & Details Drawer */}
+      <ProjectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleCreateOrUpdate}
+        project={editingProject}
+        isLoading={createMutation.isPending || updateMutation.isPending}
+      />
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                  Project Title *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={projectName}
-                  onChange={(e) => setProjectName(e.target.value)}
-                  placeholder="e.g. ProjectPilot AI Setup"
-                  className="w-full px-3.5 py-2 rounded-xl border bg-secondary/30 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:bg-background"
-                />
-              </div>
+      <DeleteConfirmModal
+        isOpen={!!deletingProject}
+        title="Delete Project"
+        message={`Are you sure you want to delete '${deletingProject?.name}'? This will permanently delete all linked tasks and milestones.`}
+        onClose={() => setDeletingProject(null)}
+        onConfirm={() => deletingProject && deleteMutation.mutate(deletingProject.id)}
+        isLoading={deleteMutation.isPending}
+      />
 
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                  Description
-                </label>
-                <textarea
-                  value={projectDesc}
-                  onChange={(e) => setProjectDesc(e.target.value)}
-                  placeholder="Enter scope details or milestones description..."
-                  rows={3}
-                  className="w-full px-3.5 py-2 rounded-xl border bg-secondary/30 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:bg-background resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                  Target Deadline
-                </label>
-                <input
-                  type="date"
-                  value={projectDeadline}
-                  onChange={(e) => setProjectDeadline(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border bg-secondary/30 text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:bg-background"
-                />
-              </div>
-
-              <div className="flex items-center gap-3 justify-end pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold border hover:bg-secondary transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={createProjectMutation.isPending}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-primary text-primary-foreground shadow hover:bg-primary/95 disabled:opacity-55 transition-all"
-                >
-                  {createProjectMutation.isPending ? "Creating..." : "Save Project"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ProjectDetailsDrawer
+        isOpen={!!drawerProject}
+        onClose={() => setDrawerProject(null)}
+        project={drawerProject}
+      />
     </div>
   );
 };

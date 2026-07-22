@@ -1,81 +1,58 @@
-from fastapi import APIRouter, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import date
-from backend.app.schemas.task import TaskCreate, TaskResponse
+from backend.app.database.connection import get_db
+from backend.app.schemas.task import TaskCreate, TaskUpdate, TaskStatusUpdate, TaskResponse
+from backend.app.services import task_service
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
-MOCK_TASKS = [
-    {
-        "id": 1,
-        "project_id": 1,
-        "title": "Establish folder structure",
-        "description": "Create frontend and backend folders according to specifications.",
-        "priority": "critical",
-        "status": "done",
-        "assignee": "Architect",
-        "start_date": date(2026, 7, 21),
-        "end_date": date(2026, 7, 21),
-    },
-    {
-        "id": 2,
-        "project_id": 1,
-        "title": "Setup FastAPI Server",
-        "description": "Create SQLite base connection, SQLAlchemy models and define modular routers.",
-        "priority": "high",
-        "status": "in_progress",
-        "assignee": "Backend Developer",
-        "start_date": date(2026, 7, 21),
-        "end_date": date(2026, 7, 22),
-    },
-    {
-        "id": 3,
-        "project_id": 1,
-        "title": "Design Premium React Dashboard Layout",
-        "description": "Implement Sidebar, Navbar, Stat cards and routing structure.",
-        "priority": "high",
-        "status": "in_progress",
-        "assignee": "Frontend Developer",
-        "start_date": date(2026, 7, 21),
-        "end_date": date(2026, 7, 24),
-    },
-    {
-        "id": 4,
-        "project_id": 1,
-        "title": "Setup Automated Tests",
-        "description": "Configure compilation and server checks in dev commands.",
-        "priority": "medium",
-        "status": "todo",
-        "assignee": "QA Lead",
-        "start_date": date(2026, 7, 24),
-        "end_date": date(2026, 7, 25),
-    }
-]
-
 @router.get("", response_model=List[TaskResponse])
-def get_tasks(project_id: Optional[int] = Query(None, description="Filter tasks by project ID")):
-    """
-    Get all tasks, optionally filtered by project_id.
-    """
-    if project_id is not None:
-        return [task for task in MOCK_TASKS if task["project_id"] == project_id]
-    return MOCK_TASKS
+def get_tasks(
+    project_id: Optional[int] = Query(None, description="Filter by project ID"),
+    status: Optional[str] = Query(None, description="Filter by status (todo, in_progress, review, testing, done)"),
+    priority: Optional[str] = Query(None, description="Filter by priority (low, medium, high, critical)"),
+    search: Optional[str] = Query(None, description="Search task title or description"),
+    assignee: Optional[str] = Query(None, description="Filter by assignee name"),
+    db: Session = Depends(get_db)
+):
+    return task_service.get_all_tasks(
+        db, 
+        project_id=project_id, 
+        status=status, 
+        priority=priority, 
+        search=search, 
+        assignee=assignee
+    )
 
 @router.post("", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
-def create_task(task: TaskCreate):
-    """
-    Create a new task.
-    """
-    new_task = {
-        "id": len(MOCK_TASKS) + 1,
-        "project_id": task.project_id,
-        "title": task.title,
-        "description": task.description,
-        "priority": task.priority or "medium",
-        "status": task.status or "todo",
-        "assignee": task.assignee,
-        "start_date": task.start_date,
-        "end_date": task.end_date,
-    }
-    MOCK_TASKS.append(new_task)
-    return new_task
+def create_task(task: TaskCreate, db: Session = Depends(get_db)):
+    return task_service.create_task(db, task)
+
+@router.get("/{task_id}", response_model=TaskResponse)
+def get_task(task_id: int, db: Session = Depends(get_db)):
+    task = task_service.get_task_by_id(db, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
+@router.put("/{task_id}", response_model=TaskResponse)
+def update_task(task_id: int, task_in: TaskUpdate, db: Session = Depends(get_db)):
+    updated = task_service.update_task(db, task_id, task_in)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return updated
+
+@router.patch("/{task_id}/status", response_model=TaskResponse)
+def move_task_status(task_id: int, payload: TaskStatusUpdate, db: Session = Depends(get_db)):
+    updated = task_service.move_task_status(db, task_id, payload.status)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return updated
+
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_task(task_id: int, db: Session = Depends(get_db)):
+    success = task_service.delete_task(db, task_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return None

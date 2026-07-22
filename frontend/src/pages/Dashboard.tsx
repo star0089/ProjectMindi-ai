@@ -3,16 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { dashboardService } from "../services/api";
 import { StatCard } from "../components/common/StatCard";
 import { ProgressCard } from "../components/common/ProgressCard";
-import { AIInsightCard } from "../components/common/AIInsightCard";
 import { LoadingSkeleton } from "../components/common/LoadingSkeleton";
 import { 
-  Heart, 
+  FolderKanban, 
   CheckSquare, 
   AlertTriangle, 
-  Sparkles,
   Calendar,
-  Activity,
-  ShieldCheck
+  Flag,
+  CheckCircle2,
+  ListTodo
 } from "lucide-react";
 
 export const Dashboard: React.FC = () => {
@@ -33,129 +32,134 @@ export const Dashboard: React.FC = () => {
     );
   }
 
+  const { stats, recent_projects, recent_tasks, upcoming_deadlines } = data;
+
   return (
     <div className="space-y-8 animate-page-fade">
-      {/* Overview Stat Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Overview Stat Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Project Health"
-          value={`${data.project_health.score}%`}
-          icon={Heart}
-          iconClassName="text-rose-500 bg-rose-500/10"
-          trend={{ value: data.project_health.status, isPositive: true, label: "Overall state" }}
-        />
-        <ProgressCard
-          title="Overall Progress"
-          percentage={data.overall_progress.percentage}
-          label={`${data.overall_progress.completed_milestones} / ${data.overall_progress.total_milestones} Milestones`}
+          title="Total Projects"
+          value={stats.total_projects}
+          icon={FolderKanban}
+          iconClassName="text-primary bg-primary/10"
+          trend={{ value: `${stats.active_projects} active`, isPositive: true, label: "current portfolios" }}
         />
         <StatCard
-          title="Completed Tasks"
-          value={data.tasks_summary.completed}
+          title="Completed Projects"
+          value={stats.completed_projects}
+          icon={CheckCircle2}
+          iconClassName="text-emerald-500 bg-emerald-500/10"
+          trend={{ value: `${stats.total_projects - stats.completed_projects} pending`, isPositive: true, label: "in workflow" }}
+        />
+        <StatCard
+          title="Tasks Completed"
+          value={stats.completed_tasks}
           icon={CheckSquare}
           iconClassName="text-emerald-500 bg-emerald-500/10"
-          trend={{ value: `+${data.tasks_summary.in_progress} active`, isPositive: true, label: "in progress" }}
+          trend={{ value: `${stats.pending_tasks} pending`, isPositive: true, label: "to execute" }}
         />
         <StatCard
-          title="Active Risks"
-          value={data.active_risks.count}
+          title="Overdue Tasks"
+          value={stats.overdue_tasks}
           icon={AlertTriangle}
-          iconClassName="text-amber-500 bg-amber-500/10"
-          trend={{ value: `${data.active_risks.items.length} triggering`, isPositive: false, label: "mitigation active" }}
+          iconClassName="text-rose-500 bg-rose-500/10"
+          trend={{ value: `${stats.overdue_tasks > 0 ? "Action required" : "On track"}`, isPositive: stats.overdue_tasks === 0, label: "deadline status" }}
         />
       </div>
 
+      {/* Progress & Milestones Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left main grid columns */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* AI insights panel */}
-          <div className="p-6 rounded-2xl border bg-card text-card-foreground shadow-premium space-y-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-indigo-500" />
-              <h3 className="font-sans font-bold text-lg">Recent AI PM Insights</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {data.recent_ai_insights.map((insight) => (
-                <AIInsightCard
-                  key={insight.id}
-                  text={insight.text}
-                  category={insight.category as any}
-                  timestamp={insight.timestamp}
-                />
-              ))}
-            </div>
+        <ProgressCard
+          title="Overall System Progress"
+          percentage={stats.overall_progress_percentage}
+          label={`${stats.completed_tasks} of ${stats.total_tasks} total tasks finished`}
+          className="lg:col-span-2"
+        />
+        <div className="p-6 rounded-2xl border bg-card text-card-foreground shadow-premium flex items-center justify-between">
+          <div className="space-y-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Active Milestones</span>
+            <h3 className="font-sans font-bold text-3xl tracking-tight">{stats.active_milestones}</h3>
           </div>
-
-          {/* Scope Health check card */}
-          <div className="p-6 rounded-2xl border bg-card text-card-foreground shadow-premium flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-1.5 flex-1">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-500" />
-                <h3 className="font-sans font-bold text-lg">Scope Guardian Metric</h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Original specification scope alignment is at <span className="font-semibold text-foreground">{data.scope_health.percentage}%</span>.
-                There has been no unauthorized scope creep detected recently.
-              </p>
-            </div>
-            <div className="w-full md:w-48">
-              <ProgressCard
-                title="Scope Alignment"
-                percentage={data.scope_health.percentage}
-                className="shadow-none border-0 p-0"
-              />
-            </div>
+          <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
+            <Flag className="w-6 h-6" />
           </div>
         </div>
+      </div>
 
-        {/* Right side panels */}
-        <div className="space-y-6">
-          {/* Upcoming Deadlines list */}
-          <div className="p-6 rounded-2xl border bg-card text-card-foreground shadow-premium space-y-4">
-            <h3 className="font-sans font-bold text-lg flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              Upcoming Deadlines
-            </h3>
-            <div className="divide-y">
-              {data.upcoming_deadlines.map((deadline) => (
-                <div key={deadline.id} className="py-3 flex items-center justify-between gap-3 first:pt-0 last:pb-0">
+      {/* Recent Activity Grids */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Projects */}
+        <div className="p-6 rounded-2xl border bg-card text-card-foreground shadow-premium space-y-4">
+          <h3 className="font-sans font-bold text-base flex items-center gap-2">
+            <FolderKanban className="w-4 h-4 text-primary" />
+            Recent Projects
+          </h3>
+          {recent_projects.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic">No projects created yet.</p>
+          ) : (
+            <div className="divide-y space-y-2">
+              {recent_projects.map((p) => (
+                <div key={p.id} className="pt-2 first:pt-0 flex items-center justify-between text-xs">
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate">{deadline.title}</p>
-                    <span className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-secondary text-foreground capitalize mt-1">
-                      {deadline.type}
-                    </span>
+                    <p className="font-semibold text-foreground truncate">{p.name}</p>
+                    <span className="text-muted-foreground">{p.completed_tasks_count}/{p.total_tasks_count} Tasks</span>
                   </div>
-                  <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">
-                    {new Date(deadline.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  <span className="font-bold text-primary">{p.progress_percentage}%</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Tasks */}
+        <div className="p-6 rounded-2xl border bg-card text-card-foreground shadow-premium space-y-4">
+          <h3 className="font-sans font-bold text-base flex items-center gap-2">
+            <ListTodo className="w-4 h-4 text-primary" />
+            Recent Tasks
+          </h3>
+          {recent_tasks.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic">No tasks created yet.</p>
+          ) : (
+            <div className="divide-y space-y-2">
+              {recent_tasks.map((t) => (
+                <div key={t.id} className="pt-2 first:pt-0 flex items-center justify-between text-xs">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground truncate">{t.title}</p>
+                    <span className="text-muted-foreground capitalize">{t.priority} priority</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary text-foreground capitalize">
+                    {t.status.replace("_", " ")}
                   </span>
                 </div>
               ))}
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Activity Log */}
-          <div className="p-6 rounded-2xl border bg-card text-card-foreground shadow-premium space-y-4">
-            <h3 className="font-sans font-bold text-lg flex items-center gap-2">
-              <Activity className="w-5 h-5 text-primary" />
-              Recent Activity
-            </h3>
-            <div className="space-y-4">
-              {data.recent_activity.map((activity) => (
-                <div key={activity.id} className="flex gap-3 text-xs leading-relaxed">
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-secondary font-bold text-[10px] shrink-0">
-                    {activity.user.substring(0, 2).toUpperCase()}
+        {/* Upcoming Deadlines */}
+        <div className="p-6 rounded-2xl border bg-card text-card-foreground shadow-premium space-y-4">
+          <h3 className="font-sans font-bold text-base flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-primary" />
+            Upcoming Deadlines
+          </h3>
+          {upcoming_deadlines.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic">No upcoming deadlines.</p>
+          ) : (
+            <div className="divide-y space-y-2">
+              {upcoming_deadlines.map((d) => (
+                <div key={d.id} className="pt-2 first:pt-0 flex items-center justify-between text-xs">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground truncate">{d.title}</p>
+                    {d.project_name && <span className="text-muted-foreground">{d.project_name}</span>}
                   </div>
-                  <div>
-                    <span className="font-semibold text-foreground">{activity.user}</span>
-                    <span className="text-muted-foreground"> {activity.action}</span>
-                    <span className="text-[10px] text-muted-foreground/60 block mt-0.5">
-                      {new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
+                  <span className="font-semibold text-muted-foreground">
+                    {new Date(d.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </span>
                 </div>
               ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

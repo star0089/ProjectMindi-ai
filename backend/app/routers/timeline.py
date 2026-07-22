@@ -1,58 +1,54 @@
-from fastapi import APIRouter, Query
-from typing import Optional, List
-from datetime import date
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.orm import Session
+from typing import Optional
+from backend.app.database.connection import get_db
+from backend.app.models.milestone import Milestone
+from backend.app.models.task import Task
 
 router = APIRouter(prefix="/timeline", tags=["timeline"])
 
 @router.get("")
-def get_timeline(project_id: Optional[int] = Query(None, description="Filter timeline by project ID")):
-    """
-    Get project milestones and key task milestones for Gantt or timeline visualization.
-    """
-    # Mock data for project 1
-    timeline_data = [
-        {
-            "id": 1,
-            "project_id": 1,
-            "title": "Project Initialization",
-            "description": "Establish directories, environments, and base configurations.",
-            "deadline": date(2026, 7, 22),
-            "completed": True,
-            "type": "milestone",
-            "phase": "Phase 1: Setup"
-        },
-        {
-            "id": 2,
-            "project_id": 1,
-            "title": "Backend Base & Models Setup",
-            "description": "Expose SQLAlchemy models, migrate schemas and create connection sessions.",
-            "deadline": date(2026, 7, 24),
-            "completed": False,
-            "type": "milestone",
-            "phase": "Phase 2: Database"
-        },
-        {
-            "id": 3,
-            "project_id": 1,
-            "title": "Frontend Core Layout Design",
-            "description": "Setup global layouts, routes, theme engine, and key card widgets.",
-            "deadline": date(2026, 7, 26),
-            "completed": False,
-            "type": "milestone",
-            "phase": "Phase 3: Client Interface"
-        },
-        {
-            "id": 4,
-            "project_id": 1,
-            "title": "API Routes Mapping & Integration",
-            "description": "Integrate API mock models, configure react-query endpoints, and link dashboards.",
-            "deadline": date(2026, 7, 30),
-            "completed": False,
-            "type": "milestone",
-            "phase": "Phase 4: Linking"
-        }
-    ]
-    
+def get_timeline(
+    project_id: Optional[int] = Query(None, description="Filter timeline by project ID"),
+    db: Session = Depends(get_db)
+):
+    milestones_query = db.query(Milestone)
+    tasks_query = db.query(Task).filter(Task.end_date.isnot(None))
+
     if project_id is not None:
-        return [item for item in timeline_data if item["project_id"] == project_id]
-    return timeline_data
+        milestones_query = milestones_query.filter(Milestone.project_id == project_id)
+        tasks_query = tasks_query.filter(Task.project_id == project_id)
+
+    milestones = milestones_query.all()
+    tasks = tasks_query.all()
+
+    timeline_items = []
+    for m in milestones:
+        timeline_items.append({
+            "id": f"m-{m.id}",
+            "raw_id": m.id,
+            "project_id": m.project_id,
+            "project_name": m.project.name if m.project else None,
+            "title": m.title,
+            "deadline": m.deadline.isoformat() if m.deadline else None,
+            "completed": m.completed,
+            "type": "milestone"
+        })
+
+    for t in tasks:
+        timeline_items.append({
+            "id": f"t-{t.id}",
+            "raw_id": t.id,
+            "project_id": t.project_id,
+            "project_name": t.project.name if t.project else None,
+            "title": t.title,
+            "deadline": t.end_date.isoformat() if t.end_date else None,
+            "completed": t.status == "done",
+            "type": "task",
+            "status": t.status,
+            "priority": t.priority
+        })
+
+    # Sort items by deadline
+    timeline_items.sort(key=lambda x: x["deadline"] or "9999-12-31")
+    return timeline_items

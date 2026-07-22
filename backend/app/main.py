@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.database.connection import engine, Base
 from backend.app.models import *  # This registers all models with metadata
-from backend.app.routers import projects, tasks, dashboard, timeline, scope, risk, chat
+from backend.app.routers import projects, tasks, milestones, dashboard, timeline, scope, risk, chat
 
 # Automatically create SQLAlchemy database tables on startup
 Base.metadata.create_all(bind=engine)
@@ -31,6 +31,7 @@ app.add_middleware(
 # Register modular routes
 app.include_router(projects.router)
 app.include_router(tasks.router)
+app.include_router(milestones.router)
 app.include_router(dashboard.router)
 app.include_router(timeline.router)
 app.include_router(scope.router)
