@@ -14,6 +14,7 @@ import { Milestones } from "./pages/Milestones";
 import { ScopeGuardian } from "./pages/ScopeGuardian";
 import { RiskCenter } from "./pages/RiskCenter";
 import { AIChat } from "./pages/AIChat";
+import { AIPlanner } from "./pages/AIPlanner";
 import { Settings } from "./pages/Settings";
 
 // Instantiate TanStack Query Client
@@ -35,6 +36,7 @@ const App: React.FC = () => {
             <PageLayout>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/planner" element={<AIPlanner />} />
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/tasks" element={<TaskBoard />} />
                 <Route path="/timeline" element={<Timeline />} />

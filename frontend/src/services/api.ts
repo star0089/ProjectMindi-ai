@@ -146,3 +146,23 @@ export const chatService = {
     return response.data;
   },
 };
+
+export const planningService = {
+  generatePlan: async (request: {
+    name: string;
+    description: string;
+    deadline?: string;
+    team_size?: string;
+    tech_preference?: string;
+  }): Promise<any> => {
+    const response = await apiClient.post("/planning/generate", request);
+    return response.data;
+  },
+  
+  savePlan: async (name: string, deadline: string, planData: any): Promise<Project> => {
+    const response = await apiClient.post<Project>("/planning/save", planData, {
+      params: { name, deadline },
+    });
+    return response.data;
+  }
+};

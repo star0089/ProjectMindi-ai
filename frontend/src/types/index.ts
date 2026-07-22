@@ -93,3 +93,59 @@ export interface DashboardSummary {
     project_name?: string | null;
   }>;
 }
+
+export interface AIUserStory {
+  role: string;
+  action: string;
+  benefit: string;
+}
+
+export interface AITask {
+  title: string;
+  description: string;
+  priority: string;
+  estimated_hours: number;
+  status: string;
+}
+
+export interface AIMilestone {
+  title: string;
+  description: string;
+  deadline_days_offset: number;
+  deliverables: string;
+}
+
+export interface AIRisk {
+  title: string;
+  severity: string;
+  description: string;
+  mitigation: string;
+}
+
+export interface AIDatabaseTable {
+  name: string;
+  columns: string;
+  relationships: string;
+}
+
+export interface AIApiEndpoint {
+  method: string;
+  path: string;
+  description: string;
+}
+
+export interface AIProjectPlan {
+  project_overview: string;
+  objectives: string;
+  scope: string;
+  deliverables: string;
+  personas: string;
+  modules: string;
+  tech_stack: string;
+  user_stories: AIUserStory[];
+  tasks: AITask[];
+  milestones: AIMilestone[];
+  risks: AIRisk[];
+  database_tables: AIDatabaseTable[];
+  api_endpoints: AIApiEndpoint[];
+}

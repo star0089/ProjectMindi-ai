@@ -10,7 +10,8 @@ import {
   BrainCircuit, 
   Settings, 
   ShieldCheck,
-  X
+  X,
+  Sparkles
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 
@@ -22,6 +23,7 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const menuItems = [
     { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "AI Planner", path: "/planner", icon: Sparkles },
     { name: "Projects", path: "/projects", icon: FolderKanban },
     { name: "Task Board", path: "/tasks", icon: CheckSquare },
     { name: "Timeline", path: "/timeline", icon: Clock },
