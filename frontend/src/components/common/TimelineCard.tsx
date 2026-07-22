@@ -1,6 +1,6 @@
 import React from "react";
-import { Milestone } from "../../types";
-import { CheckCircle2, Clock, MapPin, ArrowRight } from "lucide-react";
+import type { Milestone } from "../../types";
+import { CheckCircle2, Clock } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 interface TimelineCardProps {

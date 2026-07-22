@@ -11,7 +11,6 @@ import {
   AlertTriangle, 
   Sparkles,
   Calendar,
-  User,
   Activity,
   ShieldCheck
 } from "lucide-react";

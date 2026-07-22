@@ -4,7 +4,7 @@ import { riskService } from "../services/api";
 import { RiskCard } from "../components/common/RiskCard";
 import { LoadingSkeleton } from "../components/common/LoadingSkeleton";
 import { EmptyState } from "../components/common/EmptyState";
-import { ShieldAlert, AlertOctagon, TrendingDown } from "lucide-react";
+import { ShieldAlert, AlertOctagon } from "lucide-react";
 import { cn } from "../utils/cn";
 
 export const RiskCenter: React.FC = () => {

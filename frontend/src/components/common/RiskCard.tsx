@@ -1,6 +1,6 @@
 import React from "react";
-import { Risk } from "../../types";
-import { AlertOctagon, ShieldCheck, HelpCircle, Activity } from "lucide-react";
+import type { Risk } from "../../types";
+import { AlertOctagon, ShieldCheck, HelpCircle } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 interface RiskCardProps {

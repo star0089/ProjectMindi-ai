@@ -5,7 +5,7 @@ import { TaskCard } from "../components/common/TaskCard";
 import { LoadingSkeleton } from "../components/common/LoadingSkeleton";
 import { EmptyState } from "../components/common/EmptyState";
 import { CheckSquare, Plus, X } from "lucide-react";
-import { Task, TaskPriority, TaskStatus } from "../types";
+import type { TaskPriority, TaskStatus } from "../types";
 
 export const TaskBoard: React.FC = () => {
   const queryClient = useQueryClient();

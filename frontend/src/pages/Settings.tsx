@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Bell, Shield, Key, Eye } from "lucide-react";
+import { User, Key, Eye } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 
 export const Settings: React.FC = () => {

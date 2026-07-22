@@ -1,6 +1,6 @@
 import axios from "axios";
-import { 
-  Project, ProjectStatus, Task, Milestone, Risk, Scope, ChatHistory, DashboardSummary 
+import type { 
+  Project, Task, Milestone, Risk, Scope, ChatHistory, DashboardSummary 
 } from "../types";
 
 const API_BASE_URL = "http://localhost:8000";

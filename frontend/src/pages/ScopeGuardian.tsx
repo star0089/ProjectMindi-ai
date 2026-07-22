@@ -4,7 +4,7 @@ import { scopeService } from "../services/api";
 import { ProgressCard } from "../components/common/ProgressCard";
 import { LoadingSkeleton } from "../components/common/LoadingSkeleton";
 import { EmptyState } from "../components/common/EmptyState";
-import { ShieldCheck, ShieldAlert, CheckCircle, HelpCircle } from "lucide-react";
+import { ShieldCheck, ShieldAlert } from "lucide-react";
 import { cn } from "../utils/cn";
 
 export const ScopeGuardian: React.FC = () => {

@@ -1,6 +1,6 @@
 import React from "react";
-import { Task } from "../../types";
-import { Calendar, User, AlertCircle, ArrowUpRight } from "lucide-react";
+import type { Task } from "../../types";
+import { Calendar, User, ArrowUpRight } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 interface TaskCardProps {
@@ -11,7 +11,6 @@ interface TaskCardProps {
 
 export const TaskCard: React.FC<TaskCardProps> = ({
   task,
-  onStatusChange,
   onClick
 }) => {
   // Priority styles

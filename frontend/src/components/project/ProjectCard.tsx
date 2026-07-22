@@ -1,6 +1,6 @@
 import React from "react";
-import { Project } from "../../types";
-import { Clock, CheckCircle2, AlertTriangle, MoreVertical } from "lucide-react";
+import type { Project } from "../../types";
+import { Clock, MoreVertical } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 interface ProjectCardProps {

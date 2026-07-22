@@ -9,7 +9,6 @@ import {
   BrainCircuit, 
   Settings, 
   ShieldCheck,
-  Menu,
   X
 } from "lucide-react";
 import { cn } from "../../utils/cn";
