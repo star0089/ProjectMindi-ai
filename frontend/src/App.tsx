@@ -17,6 +17,13 @@ import { AIChat } from "./pages/AIChat";
 import { AIPlanner } from "./pages/AIPlanner";
 import { Settings } from "./pages/Settings";
 
+// AI Project Intelligence Pages
+import AIInsights from "./pages/AIInsights";
+import StandupReports from "./pages/StandupReports";
+import ExecutiveSummary from "./pages/ExecutiveSummary";
+import Recommendations from "./pages/Recommendations";
+import PredictionDashboard from "./pages/PredictionDashboard";
+
 // Instantiate TanStack Query Client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +51,14 @@ const App: React.FC = () => {
                 <Route path="/scope" element={<ScopeGuardian />} />
                 <Route path="/risk" element={<RiskCenter />} />
                 <Route path="/chat" element={<AIChat />} />
+                
+                {/* AI Insights Engine */}
+                <Route path="/insights" element={<AIInsights />} />
+                <Route path="/standup" element={<StandupReports />} />
+                <Route path="/executive-summary" element={<ExecutiveSummary />} />
+                <Route path="/recommendations" element={<Recommendations />} />
+                <Route path="/prediction" element={<PredictionDashboard />} />
+
                 <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<Dashboard />} />
               </Routes>

@@ -100,6 +100,14 @@ export const RiskCenter: React.FC = () => {
             </div>
           </div>
 
+          {/* AI Risk Explanation */}
+          {riskData.explanations && (
+            <div className="p-6 rounded-2xl border bg-gray-900/50 text-gray-300 shadow-premium">
+              <h3 className="font-sans font-bold text-lg text-white mb-2">AI Risk Analysis</h3>
+              <p className="leading-relaxed">{riskData.explanations}</p>
+            </div>
+          )}
+
           {/* Risk Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {riskData.risks.map((risk) => (

@@ -20,3 +20,4 @@ class Project(Base):
     risks = relationship("Risk", back_populates="project", cascade="all, delete-orphan")
     scopes = relationship("Scope", back_populates="project", cascade="all, delete-orphan")
     chat_histories = relationship("ChatHistory", back_populates="project", cascade="all, delete-orphan")
+    plan = relationship("ProjectPlan", back_populates="project", uselist=False, cascade="all, delete-orphan")

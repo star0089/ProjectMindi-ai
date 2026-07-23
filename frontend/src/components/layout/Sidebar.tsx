@@ -11,7 +11,12 @@ import {
   Settings, 
   ShieldCheck,
   X,
-  Sparkles
+  Sparkles,
+  LineChart,
+  ClipboardList,
+  FileText,
+  Lightbulb,
+  TrendingUp
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 
@@ -30,6 +35,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     { name: "Milestones", path: "/milestones", icon: Flag },
     { name: "Scope Guardian", path: "/scope", icon: ShieldCheck },
     { name: "Risk Center", path: "/risk", icon: ShieldAlert },
+    { name: "AI Insights", path: "/insights", icon: LineChart },
+    { name: "Standups", path: "/standup", icon: ClipboardList },
+    { name: "Exec Summary", path: "/executive-summary", icon: FileText },
+    { name: "Recommendations", path: "/recommendations", icon: Lightbulb },
+    { name: "Predictions", path: "/prediction", icon: TrendingUp },
     { name: "AI Assistant", path: "/chat", icon: BrainCircuit },
     { name: "Settings", path: "/settings", icon: Settings },
   ];

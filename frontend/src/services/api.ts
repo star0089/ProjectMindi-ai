@@ -159,10 +159,33 @@ export const planningService = {
     return response.data;
   },
   
-  savePlan: async (name: string, deadline: string, planData: any): Promise<Project> => {
+    savePlan: async (name: string, deadline: string, planData: any): Promise<Project> => {
     const response = await apiClient.post<Project>("/planning/save", planData, {
       params: { name, deadline },
     });
     return response.data;
   }
+};
+
+export const insightsService = {
+  getHealthScore: async (projectId: number): Promise<any> => {
+    const response = await apiClient.get("/insights/health", { params: { project_id: projectId } });
+    return response.data;
+  },
+  getStandup: async (projectId: number): Promise<any> => {
+    const response = await apiClient.get("/insights/standup", { params: { project_id: projectId } });
+    return response.data;
+  },
+  getExecutiveSummary: async (projectId: number): Promise<any> => {
+    const response = await apiClient.get("/insights/executive-summary", { params: { project_id: projectId } });
+    return response.data;
+  },
+  getRecommendations: async (projectId: number): Promise<any> => {
+    const response = await apiClient.get("/insights/recommendations", { params: { project_id: projectId } });
+    return response.data;
+  },
+  getPredictions: async (projectId: number): Promise<any> => {
+    const response = await apiClient.get("/insights/prediction", { params: { project_id: projectId } });
+    return response.data;
+  },
 };

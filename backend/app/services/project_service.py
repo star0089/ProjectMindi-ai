@@ -118,3 +118,41 @@ def delete_project(db: Session, project_id: int) -> bool:
     db.delete(db_project)
     db.commit()
     return True
+
+def get_project_context_for_ai(db: Session, project_id: int) -> dict:
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        return {}
+    
+    tasks = [
+        {"id": t.id, "title": t.title, "status": t.status, "priority": t.priority, "deadline": str(t.end_date) if t.end_date else None} 
+        for t in project.tasks
+    ] if project.tasks else []
+    
+    milestones = [
+        {"id": m.id, "title": m.title, "status": "completed" if m.completed else "pending", "due_date": str(m.due_date) if m.due_date else None} 
+        for m in project.milestones
+    ] if project.milestones else []
+    
+    scopes = [
+        {"requirement": s.requirement, "status": s.status, "notes": s.notes} 
+        for s in project.scopes
+    ] if project.scopes else []
+    
+    risks = [
+        {"title": r.title, "severity": r.severity, "status": r.status, "description": r.description} 
+        for r in project.risks
+    ] if project.risks else []
+
+    return {
+        "project": {
+            "name": project.name,
+            "description": project.description,
+            "deadline": str(project.deadline) if project.deadline else None
+        },
+        "tasks": tasks,
+        "milestones": milestones,
+        "scopes": scopes,
+        "risks": risks
+    }
+
