@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.database.connection import engine, Base
 from backend.app.models import *  # This registers all models with metadata
-from backend.app.routers import projects, tasks, milestones, dashboard, timeline, scope, risk, chat, planning, insights
+from backend.app.routers import projects, tasks, milestones, dashboard, timeline, scope, risk, chat, planning, insights, team, notifications, activity, reports, analytics, calendar, search
 
 # Automatically create SQLAlchemy database tables on startup
 Base.metadata.create_all(bind=engine)
@@ -39,6 +39,13 @@ app.include_router(risk.router)
 app.include_router(chat.router)
 app.include_router(planning.router)
 app.include_router(insights.router)
+app.include_router(team.router)
+app.include_router(notifications.router)
+app.include_router(activity.router)
+app.include_router(reports.router)
+app.include_router(analytics.router)
+app.include_router(calendar.router)
+app.include_router(search.router)
 
 @app.get("/")
 def read_root():

@@ -20,10 +20,15 @@ def get_dashboard_analytics(db: Session):
     total_tasks = len(tasks)
     completed_tasks = sum(1 for t in tasks if t.status == "done")
     pending_tasks = total_tasks - completed_tasks
-    overdue_tasks = sum(
-        1 for t in tasks 
-        if t.status != "done" and t.end_date is not None and t.end_date < today
-    )
+    overdue_tasks = 0
+    for t in tasks:
+        if t.status != "done" and t.end_date is not None:
+            try:
+                task_date = t.end_date if isinstance(t.end_date, date) else date.fromisoformat(str(t.end_date))
+                if task_date < today:
+                    overdue_tasks += 1
+            except Exception:
+                pass
 
     total_milestones = len(milestones)
     active_milestones = sum(1 for m in milestones if not m.completed)
@@ -47,7 +52,7 @@ def get_dashboard_analytics(db: Session):
             upcoming_deadlines.append({
                 "id": f"m-{m.id}",
                 "title": m.title,
-                "deadline": m.deadline.isoformat(),
+                "deadline": str(m.deadline),
                 "type": "milestone",
                 "project_name": m.project.name if m.project else None
             })
@@ -56,7 +61,7 @@ def get_dashboard_analytics(db: Session):
             upcoming_deadlines.append({
                 "id": f"t-{t.id}",
                 "title": t.title,
-                "deadline": t.end_date.isoformat(),
+                "deadline": str(t.end_date),
                 "type": "task",
                 "project_name": t.project.name if t.project else None
             })

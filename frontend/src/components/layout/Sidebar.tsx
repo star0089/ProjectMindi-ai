@@ -16,7 +16,11 @@ import {
   ClipboardList,
   FileText,
   Lightbulb,
-  TrendingUp
+  TrendingUp,
+  Users,
+  Calendar,
+  Activity,
+  Bell
 } from "lucide-react";
 import { cn } from "../../utils/cn";
 
@@ -27,14 +31,20 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const menuItems = [
-    { name: "Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "Enterprise Dashboard", path: "/", icon: LayoutDashboard },
+    { name: "Team Management", path: "/team", icon: Users },
     { name: "AI Planner", path: "/planner", icon: Sparkles },
     { name: "Projects", path: "/projects", icon: FolderKanban },
     { name: "Task Board", path: "/tasks", icon: CheckSquare },
     { name: "Timeline", path: "/timeline", icon: Clock },
+    { name: "Calendar", path: "/calendar", icon: Calendar },
     { name: "Milestones", path: "/milestones", icon: Flag },
     { name: "Scope Guardian", path: "/scope", icon: ShieldCheck },
     { name: "Risk Center", path: "/risk", icon: ShieldAlert },
+    { name: "Analytics", path: "/analytics", icon: LineChart },
+    { name: "Reports", path: "/reports", icon: FileText },
+    { name: "Activity", path: "/activity", icon: Activity },
+    { name: "Notifications", path: "/notifications", icon: Bell },
     { name: "AI Insights", path: "/insights", icon: LineChart },
     { name: "Standups", path: "/standup", icon: ClipboardList },
     { name: "Exec Summary", path: "/executive-summary", icon: FileText },

@@ -24,6 +24,14 @@ import ExecutiveSummary from "./pages/ExecutiveSummary";
 import Recommendations from "./pages/Recommendations";
 import PredictionDashboard from "./pages/PredictionDashboard";
 
+// Phase 5: Enterprise Features
+import { Team } from "./pages/Team";
+import { Analytics } from "./pages/Analytics";
+import { Notifications } from "./pages/Notifications";
+import { Reports } from "./pages/Reports";
+import { CalendarView } from "./pages/CalendarView";
+import { Activity } from "./pages/Activity";
+
 // Instantiate TanStack Query Client
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,14 +51,20 @@ const App: React.FC = () => {
             <PageLayout>
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/team" element={<Team />} />
                 <Route path="/planner" element={<AIPlanner />} />
                 <Route path="/projects" element={<Projects />} />
                 <Route path="/tasks" element={<TaskBoard />} />
                 <Route path="/timeline" element={<Timeline />} />
+                <Route path="/calendar" element={<CalendarView />} />
                 <Route path="/milestones" element={<Milestones />} />
                 <Route path="/scope" element={<ScopeGuardian />} />
                 <Route path="/risk" element={<RiskCenter />} />
                 <Route path="/chat" element={<AIChat />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/activity" element={<Activity />} />
+                <Route path="/notifications" element={<Notifications />} />
                 
                 {/* AI Insights Engine */}
                 <Route path="/insights" element={<AIInsights />} />

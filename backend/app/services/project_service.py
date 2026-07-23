@@ -130,7 +130,7 @@ def get_project_context_for_ai(db: Session, project_id: int) -> dict:
     ] if project.tasks else []
     
     milestones = [
-        {"id": m.id, "title": m.title, "status": "completed" if m.completed else "pending", "due_date": str(m.due_date) if m.due_date else None} 
+        {"id": m.id, "title": m.title, "status": "completed" if m.completed else "pending", "deadline": str(m.deadline) if m.deadline else None} 
         for m in project.milestones
     ] if project.milestones else []
     
