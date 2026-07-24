@@ -1,6 +1,6 @@
 # ProjectPilot AI — System Architecture & Component Blueprint
 
-This document details the high-level architecture, module design, data pipelines, and security model of **ProjectPilot AI**, an autonomous project manager assistant.
+This document details the high-level architecture, module design, data pipelines, and security model of **ProjectPilot AI**, an autonomous project management and telemetry platform.
 
 ---
 
@@ -8,19 +8,19 @@ This document details the high-level architecture, module design, data pipelines
 
 ```mermaid
 graph TD
-    Client[React + TypeScript + Tailwind CSS Frontend]
+    Client[React 19 + TypeScript + Tailwind CSS Frontend]
     Vercel[Vercel Global Edge CDN]
     API[FastAPI Backend Engine]
     Render[Render Web Service]
     DB[(PostgreSQL / SQLite Database)]
-    Gemini[Google Gemini 1.5 Pro AI]
+    Gemini[Google Gemini 1.5 Pro AI Engine]
 
     Client -->|HTTPS / REST API| API
-    Vercel -->|Host Static App| Client
-    Render -->|Host Service Container| API
+    Vercel -->|Hosts Single-Page App| Client
+    Render -->|Hosts FastAPI Container| API
     API -->|SQLAlchemy ORM| DB
-    API -->|Prompt & Context Vectors| Gemini
-    Gemini -->|Structured Insights & Plans| API
+    API -->|Prompt & Telemetry Vectors| Gemini
+    Gemini -->|Structured Insights & Blueprints| API
 ```
 
 ---
@@ -30,7 +30,7 @@ graph TD
 ### Frontend Layer
 - **Framework**: React 19 with TypeScript, bundled using Vite.
 - **Routing**: `react-router-dom` v7 with lazy route-splitting and `Suspense` fallbacks.
-- **State & Data Fetching**: TanStack React Query v5 for server state caching, background invalidation, and optimistic UI.
+- **State & Data Fetching**: TanStack React Query v5 for server state caching, background invalidation, and optimistic UI updates.
 - **Styling & Design System**: Tailwind CSS v3, Lucide React icons, and custom glassmorphism design tokens.
 - **Resilience**: `ErrorBoundary` components, global Axios error interceptors, and `NetworkStatusBanner`.
 
@@ -38,11 +38,11 @@ graph TD
 - **Framework**: FastAPI (Python 3.11+).
 - **ORM & Database Abstraction**: SQLAlchemy 2.0 supporting PostgreSQL in production and SQLite locally.
 - **Configuration & Validation**: `pydantic-settings` for strongly-typed environment configuration.
-- **API Routers**: Modular routes per domain resource (`projects`, `tasks`, `milestones`, `scope`, `risk`, `chat`, `planning`, `insights`, `team`, `analytics`, `reports`).
+- **API Routers**: Modular routes per domain resource (`projects`, `tasks`, `milestones`, `scope`, `risk`, `chat`, `planning`, `insights`, `team`, `analytics`, `reports`, `prd`, `notifications`).
 
 ### AI Intelligence Layer
-- **LLM Integrations**: Google Gemini 1.5 API via `google-generativeai`.
-- **Scope & Risk Guardian**: Real-time project telemetry analysis for detecting scope creep, schedule delays, and bottleneck risks.
+- **LLM Engine**: Google Gemini 1.5 Pro API via `google-generativeai`.
+- **Scope Audit Engine**: Real-time project telemetry analysis for parsing PRDs, detecting scope creep, schedule delays, and bottleneck risks.
 
 ---
 
