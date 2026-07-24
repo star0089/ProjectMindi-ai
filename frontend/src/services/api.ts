@@ -242,3 +242,33 @@ export const prdService = {
     return response.data;
   }
 };
+
+export interface NotificationItem {
+  id: number;
+  user_id?: number;
+  project_id?: number;
+  title: string;
+  message: string;
+  type: "task" | "alert" | "success" | "deadline" | string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export const notificationService = {
+  getNotifications: async (): Promise<NotificationItem[]> => {
+    const response = await apiClient.get<NotificationItem[]>("/notifications");
+    return response.data;
+  },
+  markRead: async (id: number): Promise<any> => {
+    const response = await apiClient.patch(`/notifications/${id}/read`);
+    return response.data;
+  },
+  markAllRead: async (): Promise<any> => {
+    const response = await apiClient.post("/notifications/read-all");
+    return response.data;
+  },
+  createNotification: async (data: Partial<NotificationItem>): Promise<NotificationItem> => {
+    const response = await apiClient.post<NotificationItem>("/notifications", data);
+    return response.data;
+  }
+};
