@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Body
 from sqlalchemy.orm import Session
 from backend.app.database.connection import get_db
 from backend.app.services.health_score_service import generate_health_score
 from backend.app.services.standup_service import generate_daily_standup, generate_executive_summary
-from backend.app.services.recommendation_service import generate_recommendations
+from backend.app.services.recommendation_service import generate_recommendations, apply_recommendation
 from backend.app.services.prediction_service import generate_predictions
 
 router = APIRouter(prefix="/insights", tags=["insights"])
@@ -27,6 +27,15 @@ def get_executive_summary(project_id: int, db: Session = Depends(get_db)):
 def get_recommendations(project_id: int, db: Session = Depends(get_db)):
     """Get smart AI recommendations for project tasks."""
     return generate_recommendations(db, project_id)
+
+@router.post("/recommendations/apply")
+def post_apply_recommendation(
+    project_id: int = Query(..., description="Project ID"),
+    recommendation_id: str = Query(..., description="Recommendation ID"),
+    db: Session = Depends(get_db)
+):
+    """Execute 1-click strategic recommendation action in database."""
+    return apply_recommendation(db, project_id, recommendation_id)
 
 @router.get("/prediction")
 def get_predictions(project_id: int, db: Session = Depends(get_db)):

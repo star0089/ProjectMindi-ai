@@ -216,8 +216,29 @@ export const insightsService = {
     const response = await apiClient.get("/insights/recommendations", { params: { project_id: projectId } });
     return response.data;
   },
+  applyRecommendation: async (projectId: number, recommendationId: string): Promise<any> => {
+    const response = await apiClient.post("/insights/recommendations/apply", null, {
+      params: { project_id: projectId, recommendation_id: recommendationId }
+    });
+    return response.data;
+  },
   getPredictions: async (projectId: number): Promise<any> => {
     const response = await apiClient.get("/insights/prediction", { params: { project_id: projectId } });
     return response.data;
   },
+};
+
+export const prdService = {
+  parsePRD: async (documentText: string, documentTitle?: string): Promise<any> => {
+    const response = await apiClient.post("/prd/parse", { document_text: documentText, document_title: documentTitle });
+    return response.data;
+  },
+  auditScope: async (projectId: number, blueprint?: any): Promise<any> => {
+    const response = await apiClient.post("/prd/audit", { project_id: projectId, blueprint });
+    return response.data;
+  },
+  getScopeAudit: async (projectId: number): Promise<any> => {
+    const response = await apiClient.get("/prd/audit", { params: { project_id: projectId } });
+    return response.data;
+  }
 };

@@ -8,7 +8,7 @@ from backend.app.models import *  # Registers all models with Base.metadata
 from backend.app.routers import (
     projects, tasks, milestones, dashboard, timeline, scope, 
     risk, chat, planning, insights, team, notifications, 
-    activity, reports, analytics, calendar, search
+    activity, reports, analytics, calendar, search, prd
 )
 
 # Configure logging
@@ -91,6 +91,7 @@ app.include_router(reports.router)
 app.include_router(analytics.router)
 app.include_router(calendar.router)
 app.include_router(search.router)
+app.include_router(prd.router)
 
 @app.get("/")
 def read_root():

@@ -31,8 +31,9 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const menuItems = [
-    { name: "Enterprise Dashboard", path: "/", icon: LayoutDashboard },
-    { name: "Team Management", path: "/team", icon: Users },
+    { name: "AI Command Center", path: "/", icon: LayoutDashboard },
+    { name: "AI Scope Audit", path: "/prd-audit", icon: ShieldCheck },
+    { name: "Executive Report", path: "/executive-summary", icon: FileText },
     { name: "AI Planner", path: "/planner", icon: Sparkles },
     { name: "Projects", path: "/projects", icon: FolderKanban },
     { name: "Task Board", path: "/tasks", icon: CheckSquare },
@@ -43,11 +44,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     { name: "Risk Center", path: "/risk", icon: ShieldAlert },
     { name: "Analytics", path: "/analytics", icon: LineChart },
     { name: "Reports", path: "/reports", icon: FileText },
+    { name: "Team Management", path: "/team", icon: Users },
     { name: "Activity", path: "/activity", icon: Activity },
     { name: "Notifications", path: "/notifications", icon: Bell },
     { name: "AI Insights", path: "/insights", icon: LineChart },
     { name: "Standups", path: "/standup", icon: ClipboardList },
-    { name: "Exec Summary", path: "/executive-summary", icon: FileText },
     { name: "Recommendations", path: "/recommendations", icon: Lightbulb },
     { name: "Predictions", path: "/prediction", icon: TrendingUp },
     { name: "AI Assistant", path: "/chat", icon: BrainCircuit },

@@ -15,6 +15,7 @@ const TaskBoard = lazy(() => import("./pages/TaskBoard").then(m => ({ default: m
 const Timeline = lazy(() => import("./pages/Timeline").then(m => ({ default: m.Timeline })));
 const Milestones = lazy(() => import("./pages/Milestones").then(m => ({ default: m.Milestones })));
 const ScopeGuardian = lazy(() => import("./pages/ScopeGuardian").then(m => ({ default: m.ScopeGuardian })));
+const AIScopeAuditEngine = lazy(() => import("./pages/AIScopeAuditEngine").then(m => ({ default: m.AIScopeAuditEngine })));
 const RiskCenter = lazy(() => import("./pages/RiskCenter").then(m => ({ default: m.RiskCenter })));
 const AIChat = lazy(() => import("./pages/AIChat").then(m => ({ default: m.AIChat })));
 const AIPlanner = lazy(() => import("./pages/AIPlanner").then(m => ({ default: m.AIPlanner })));
@@ -77,6 +78,7 @@ const App: React.FC = () => {
                     <Route path="/calendar" element={<CalendarView />} />
                     <Route path="/milestones" element={<Milestones />} />
                     <Route path="/scope" element={<ScopeGuardian />} />
+                    <Route path="/prd-audit" element={<AIScopeAuditEngine />} />
                     <Route path="/risk" element={<RiskCenter />} />
                     <Route path="/chat" element={<AIChat />} />
                     <Route path="/analytics" element={<Analytics />} />
