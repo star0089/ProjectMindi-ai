@@ -23,8 +23,8 @@ export const RiskCenter: React.FC = () => {
     );
   }
 
-  const getOverallRiskColor = (status: string) => {
-    switch (status.toLowerCase()) {
+  const getOverallRiskColor = (status?: string) => {
+    switch ((status || "").toLowerCase()) {
       case "low":
         return "text-green-500 bg-green-500/10";
       case "medium":

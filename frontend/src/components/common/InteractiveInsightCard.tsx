@@ -45,8 +45,9 @@ export const InteractiveInsightCard: React.FC<Props> = ({ recommendation, projec
     }
   };
 
-  const getPriorityBadge = (prio: string) => {
-    switch (prio.toLowerCase()) {
+  const getPriorityBadge = (prio?: string) => {
+    const safePrio = (prio || "medium").toLowerCase();
+    switch (safePrio) {
       case "critical":
         return "bg-rose-500/10 text-rose-400 border-rose-500/30";
       case "high":
@@ -56,23 +57,25 @@ export const InteractiveInsightCard: React.FC<Props> = ({ recommendation, projec
     }
   };
 
+  const currentPriority = recommendation.priority || "medium";
+
   return (
     <div
       onClick={() => setExpanded(!expanded)}
       className="group bg-slate-900/80 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-5 transition-all duration-300 shadow-xl cursor-pointer backdrop-blur-xl relative overflow-hidden"
     >
       {/* Decorative Glow Line */}
-      <div className={`absolute top-0 left-0 right-0 h-1 ${recommendation.priority === "critical" ? "bg-rose-500" : "bg-indigo-500"}`} />
+      <div className={`absolute top-0 left-0 right-0 h-1 ${currentPriority.toLowerCase() === "critical" ? "bg-rose-500" : "bg-indigo-500"}`} />
 
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3.5">
-          <div className={`p-2.5 rounded-xl border ${getPriorityBadge(recommendation.priority)}`}>
+          <div className={`p-2.5 rounded-xl border ${getPriorityBadge(currentPriority)}`}>
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className={`px-2 py-0.5 text-xs font-semibold uppercase tracking-wider rounded-md border ${getPriorityBadge(recommendation.priority)}`}>
-                {recommendation.priority} Priority
+              <span className={`px-2 py-0.5 text-xs font-semibold uppercase tracking-wider rounded-md border ${getPriorityBadge(currentPriority)}`}>
+                {currentPriority} Priority
               </span>
               <span className="px-2 py-0.5 text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-md flex items-center gap-1">
                 <Zap className="w-3 h-3" /> {recommendation.confidence_score}% Confidence
