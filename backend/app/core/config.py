@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./projectpilot.db")
     
+    # Security & Secret Key
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "projectpilot-secret-key-change-in-production")
+    
     # Gemini AI Key
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     

@@ -2,22 +2,17 @@ services:
   - type: web
     name: projectpilot-backend
     env: python
+    plan: free
     buildCommand: "pip install -r backend/requirements.txt"
     startCommand: "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: ENVIRONMENT
         value: production
       - key: DATABASE_URL
-        fromDatabase:
-          name: projectpilot-postgres
-          property: connectionString
+        value: "sqlite:///./projectpilot.db"
       - key: GEMINI_API_KEY
         sync: false
+      - key: SECRET_KEY
+        generateValue: true
       - key: CORS_ORIGINS
-        value: "https://projectpilot-ai.vercel.app,http://localhost:5173"
-
-databases:
-  - name: projectpilot-postgres
-    databaseName: projectpilot
-    user: projectpilot_user
-    plan: free
+        value: "https://frontend-brown-xi-96.vercel.app,http://localhost:5173"
