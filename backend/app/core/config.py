@@ -21,7 +21,8 @@ class Settings(BaseSettings):
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
-        "https://projectpilot-ai.vercel.app"
+        "https://projectpilot-ai.vercel.app",
+        "https://frontend-brown-xi-96.vercel.app"
     ]
 
     model_config = SettingsConfigDict(
