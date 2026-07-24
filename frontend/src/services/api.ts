@@ -3,14 +3,38 @@ import type {
   Project, Task, TaskStatus, Milestone, Risk, Scope, ChatHistory, DashboardSummary 
 } from "../types";
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 15000,
 });
+
+// Response interceptor for unified error formatting
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    let customError = "An unexpected error occurred.";
+    if (error.response) {
+      const data = error.response.data;
+      if (data && data.message) {
+        customError = data.message;
+      } else if (data && data.detail) {
+        customError = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
+      } else {
+        customError = `Server returned status ${error.response.status}`;
+      }
+    } else if (error.request) {
+      customError = "Network error: Unable to connect to backend service.";
+    } else {
+      customError = error.message || customError;
+    }
+    return Promise.reject(new Error(customError));
+  }
+);
 
 export const projectService = {
   getProjects: async (params?: { search?: string; status?: string; sort_by?: string }): Promise<Project[]> => {
@@ -110,11 +134,18 @@ export const timelineService = {
 
 export const scopeService = {
   getScope: async (projectId?: number): Promise<{
-    project_id: number;
-    scope_alignment_score: number;
-    total_requirements: number;
-    implemented_requirements: number;
-    drift_detected: boolean;
+    project_id?: number;
+    scope_health_score?: number;
+    scope_alignment_score?: number;
+    requirement_coverage_percent?: number;
+    total_requirements?: number;
+    implemented_requirements?: number;
+    drift_detected?: boolean;
+    scope_drift_detected?: boolean;
+    drift_details?: string;
+    missing_features?: string[];
+    unplanned_features?: string[];
+    incomplete_modules?: string[];
     requirements: Scope[];
   }> => {
     const params = projectId ? { project_id: projectId } : {};
@@ -125,11 +156,12 @@ export const scopeService = {
 
 export const riskService = {
   getRisks: async (projectId?: number): Promise<{
-    project_id: number;
+    project_id?: number;
     overall_risk_status: string;
     active_risks_count: number;
     mitigated_risks_count: number;
     risks: Risk[];
+    explanations?: string | string[];
   }> => {
     const params = projectId ? { project_id: projectId } : {};
     const response = await apiClient.get("/risk", { params });
@@ -159,7 +191,7 @@ export const planningService = {
     return response.data;
   },
   
-    savePlan: async (name: string, deadline: string, planData: any): Promise<Project> => {
+  savePlan: async (name: string, deadline: string, planData: any): Promise<Project> => {
     const response = await apiClient.post<Project>("/planning/save", planData, {
       params: { name, deadline },
     });

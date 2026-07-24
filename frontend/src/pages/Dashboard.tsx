@@ -37,7 +37,6 @@ export const Dashboard: React.FC = () => {
     active_milestones: 0,
     overall_progress_percentage: 0,
   };
-  const recent_projects = data?.recent_projects || [];
   const recent_tasks = data?.recent_tasks || [];
   const upcoming_deadlines = data?.upcoming_deadlines || [];
 

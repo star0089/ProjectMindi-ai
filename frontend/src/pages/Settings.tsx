@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Key, Eye, Bell, Settings as SettingsIcon, BrainCircuit, Download } from "lucide-react";
+import { User, Eye, Bell, Settings as SettingsIcon, BrainCircuit, Download } from "lucide-react";
 import { useTheme } from "../hooks/useTheme";
 
 export const Settings: React.FC = () => {

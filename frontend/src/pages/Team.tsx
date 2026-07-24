@@ -1,5 +1,4 @@
-import React from "react";
-import { Users, Shield, Code, UserCircle, Briefcase, Activity } from "lucide-react";
+import { Shield, Code, UserCircle, Briefcase, Activity } from "lucide-react";
 
 export const Team = () => {
   // Mock data for display, can be connected to react-query later

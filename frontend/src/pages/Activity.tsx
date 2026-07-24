@@ -1,4 +1,3 @@
-import React from "react";
 import { Activity as ActivityIcon, CheckCircle2, Clock, GitCommit, AlertCircle } from "lucide-react";
 
 export const Activity = () => {

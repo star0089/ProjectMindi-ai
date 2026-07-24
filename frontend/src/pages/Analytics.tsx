@@ -1,4 +1,3 @@
-import React from "react";
 import { TrendingUp, Activity, Clock, Zap } from "lucide-react";
 
 export const Analytics = () => {

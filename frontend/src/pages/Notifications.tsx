@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Bell, CheckCircle2, AlertTriangle, Clock, Calendar, Search } from "lucide-react";
+import { useState } from "react";
+import { Bell, CheckCircle2, AlertTriangle, Clock, Calendar } from "lucide-react";
 import { cn } from "../utils/cn";
 
 export const Notifications = () => {

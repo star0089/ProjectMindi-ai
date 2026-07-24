@@ -1,24 +1,33 @@
-from fastapi import FastAPI
+import logging
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from backend.app.core.config import settings
 from backend.app.database.connection import engine, Base
-from backend.app.models import *  # This registers all models with metadata
-from backend.app.routers import projects, tasks, milestones, dashboard, timeline, scope, risk, chat, planning, insights, team, notifications, activity, reports, analytics, calendar, search
+from backend.app.models import *  # Registers all models with Base.metadata
+from backend.app.routers import (
+    projects, tasks, milestones, dashboard, timeline, scope, 
+    risk, chat, planning, insights, team, notifications, 
+    activity, reports, analytics, calendar, search
+)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("projectpilot")
 
 # Automatically create SQLAlchemy database tables on startup
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="ProjectPilot AI API",
-    description="Core backend service for ProjectPilot AI, an autonomous project manager assistant.",
-    version="1.0.0",
+    title=settings.PROJECT_NAME,
+    description="Core backend API service for ProjectPilot AI, an autonomous project manager assistant.",
+    version=settings.VERSION,
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
-# CORS configurations for local frontend development integration
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:3000",
-]
+# CORS configurations derived from settings
+origins = settings.get_cors_origins()
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,7 +37,43 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register modular routes
+# Global Security Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    return response
+
+# Global Exception Handler for Unhandled Server Errors
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled Exception on {request.url.path}: {str(exc)}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "success": False,
+            "error": "Internal Server Error",
+            "message": "An unexpected server error occurred. Please try again later.",
+            "path": request.url.path
+        },
+    )
+
+# Global Exception Handler for HTTP Exceptions
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "error": "HTTP Error",
+            "message": exc.detail,
+            "path": request.url.path
+        },
+    )
+
+# Register modular API routers
 app.include_router(projects.router)
 app.include_router(tasks.router)
 app.include_router(milestones.router)
@@ -54,7 +99,8 @@ def read_root():
     """
     return {
         "status": "online",
-        "app": "ProjectPilot AI Backend",
-        "version": "1.0.0",
+        "app": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "environment": settings.ENVIRONMENT,
         "documentation": "/docs"
     }

@@ -1,5 +1,4 @@
-import React from "react";
-import { FileText, Download, FileSpreadsheet, FileIcon } from "lucide-react";
+import { FileText, FileSpreadsheet, FileIcon } from "lucide-react";
 
 export const Reports = () => {
   const reports = [
