@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
-import { insightsService } from "../services/api";
+import { insightsService, projectService } from "../services/api";
 
 export default function Recommendations() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    insightsService.getRecommendations(1)
+    projectService.getProjects()
+      .then((projects) => {
+        const activeId = projects && projects.length > 0 ? projects[0].id : 1;
+        return insightsService.getRecommendations(activeId);
+      })
       .then(setData)
       .catch(console.error)
       .finally(() => setLoading(false));

@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
-import { insightsService } from "../services/api";
+import { insightsService, projectService } from "../services/api";
 
 export default function AIInsights() {
   const [healthData, setHealthData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Assuming project 1 for MVP
-    insightsService.getHealthScore(1)
+    projectService.getProjects()
+      .then((projects) => {
+        const activeId = projects && projects.length > 0 ? projects[0].id : 1;
+        return insightsService.getHealthScore(activeId);
+      })
       .then(setHealthData)
       .catch(console.error)
       .finally(() => setLoading(false));

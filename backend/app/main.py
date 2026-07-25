@@ -18,6 +18,19 @@ logger = logging.getLogger("projectpilot")
 # Automatically create SQLAlchemy database tables on startup
 Base.metadata.create_all(bind=engine)
 
+# Auto-seed database if empty
+try:
+    from backend.app.database.connection import SessionLocal
+    from backend.app.models.project import Project
+    _db = SessionLocal()
+    if _db.query(Project).count() == 0:
+        logger.info("Database empty on startup. Auto-seeding initial project data...")
+        from seed import seed_database
+        seed_database()
+    _db.close()
+except Exception as _e:
+    logger.warning(f"Could not auto-seed database: {_e}")
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Core backend API service for ProjectPilot AI, an autonomous project manager assistant.",
