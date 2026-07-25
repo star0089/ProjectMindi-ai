@@ -6,7 +6,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-38B2AC.svg)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-> **National AI Hackathon Entry**: ProjectPilot AI is an **Autonomous AI Project Governance Platform** designed to solve the critical question in software engineering: *"Are we building what we promised, on time, within baseline scope?"*
+> ProjectPilot AI is an **Autonomous AI Project Governance Platform** designed to solve the critical question in software engineering: *"Are we building what we promised, on time, within baseline scope?"*
 
 ---
 
@@ -68,11 +68,3 @@ graph TD
 ```
 
 ---
-
-## ⏱️ 90-Second Hackathon Judge Demo Guide
-
-1. Open **[https://frontend-brown-xi-96.vercel.app](https://frontend-brown-xi-96.vercel.app)**.
-2. **Command Center**: View real-time Health Index, Scope Alignment, and click any **Interactive AI Insight Card** to expand evidence citations and click `[Apply Recommendation]`.
-3. **AI Scope Audit Engine**: Click **AI Scope Audit** in the sidebar. Select sample template *"AI E-Commerce Platform PRD"* and click **Run AI Scope Audit** to see live requirement coverage, missing features, and out-of-scope alerts.
-4. **Executive Report**: Click **Executive Report** and click **Export Executive PDF** to download a C-suite report.
-5. **Notification Center**: Click **Notifications** to filter tasks/alerts and mark items as read.
