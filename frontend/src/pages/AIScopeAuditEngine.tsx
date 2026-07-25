@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { prdService } from "../services/api";
-import { ShieldCheck, FileText, AlertTriangle, CheckCircle2, XCircle, Zap, RefreshCw, Sparkles } from "lucide-react";
+import { prdService, projectService } from "../services/api";
+import { ShieldCheck, FileText, AlertTriangle, CheckCircle2, XCircle, Zap, RefreshCw, Sparkles, FolderKanban } from "lucide-react";
 import { useToast } from "../hooks/useToast";
 
 const SAMPLE_PRDS = [
@@ -35,21 +35,28 @@ const SAMPLE_PRDS = [
 ];
 
 export const AIScopeAuditEngine: React.FC = () => {
-  const [selectedProjectId] = useState<number>(1);
+  const [selectedProjectId, setSelectedProjectId] = useState<number | undefined>(undefined);
   const [prdText, setPrdText] = useState(SAMPLE_PRDS[0].text);
   const [isAuditing, setIsAuditing] = useState(false);
   const { toast } = useToast();
 
+  const { data: projects } = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => projectService.getProjects(),
+  });
+
+  const activeProjectId = selectedProjectId || (projects && projects.length > 0 ? projects[0].id : 1);
+
   const { data: auditData, refetch, isLoading } = useQuery({
-    queryKey: ["scopeAudit", selectedProjectId],
-    queryFn: () => prdService.getScopeAudit(selectedProjectId),
+    queryKey: ["scopeAudit", activeProjectId],
+    queryFn: () => prdService.getScopeAudit(activeProjectId),
   });
 
   const handleRunAudit = async () => {
     try {
       setIsAuditing(true);
       const parsedBlueprint = await prdService.parsePRD(prdText, "Uploaded PRD Specification");
-      await prdService.auditScope(selectedProjectId, parsedBlueprint);
+      await prdService.auditScope(activeProjectId, parsedBlueprint);
       await refetch();
       toast("Scope Audit Completed! AI compared PRD blueprint against active database tasks.", "success");
     } catch (err: any) {
@@ -85,6 +92,22 @@ export const AIScopeAuditEngine: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          {projects && projects.length > 0 && (
+            <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 shadow-sm">
+              <FolderKanban className="w-4 h-4 text-indigo-400" />
+              <select
+                value={activeProjectId}
+                onChange={(e) => setSelectedProjectId(Number(e.target.value))}
+                className="bg-transparent text-slate-200 focus:outline-none font-medium cursor-pointer"
+              >
+                {projects.map((p: any) => (
+                  <option key={p.id} value={p.id} className="bg-slate-900 text-slate-200">
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <button
             onClick={handleRunAudit}
             disabled={isAuditing || isLoading}
