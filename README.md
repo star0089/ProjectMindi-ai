@@ -15,6 +15,7 @@
 - **Frontend Application (Vercel Edge)**: [https://frontend-brown-xi-96.vercel.app](https://frontend-brown-xi-96.vercel.app)
 - **Backend API Engine (Render Cloud)**: [https://projectmindi-ai.onrender.com](https://projectmindi-ai.onrender.com)
 - **API Documentation**: [https://projectmindi-ai.onrender.com/docs](https://projectmindi-ai.onrender.com/docs)
+- **Demo Video**: [(https://drive.google.com/file/d/17EXa13dfcXeq0Hi8cNIoUJwaY2vWyvq1/view?usp=sharing)]
 
 ---
 
