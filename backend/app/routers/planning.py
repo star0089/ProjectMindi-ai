@@ -25,8 +25,8 @@ def generate_plan(request: PlanGenerationRequest):
 @router.post("/save", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
 def save_plan(
     name: str, 
-    deadline: str, 
-    plan_data: AIProjectPlan, 
+    deadline: str | None = None, 
+    plan_data: AIProjectPlan = None, 
     db: Session = Depends(get_db)
 ):
     """

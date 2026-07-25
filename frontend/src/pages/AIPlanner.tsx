@@ -51,7 +51,8 @@ export const AIPlanner: React.FC = () => {
     },
     onError: (err: any) => {
       setStep(2);
-      toast(err?.response?.data?.detail || "Failed to generate plan. Please try again.", "error");
+      const msg = err?.response?.data?.detail || err?.message || "Failed to generate plan. Please try again.";
+      toast(msg, "error");
     }
   });
 
@@ -62,8 +63,9 @@ export const AIPlanner: React.FC = () => {
       toast("Project Plan saved to database!", "success");
       navigate("/");
     },
-    onError: () => {
-      toast("Failed to save project plan.", "error");
+    onError: (err: any) => {
+      const msg = err?.response?.data?.detail || err?.message || "Failed to save project plan.";
+      toast(msg, "error");
     }
   });
 

@@ -10,7 +10,7 @@ export const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 15000,
+  timeout: 30000,
 });
 
 // Response interceptor for unified error formatting
@@ -187,13 +187,15 @@ export const planningService = {
     team_size?: string;
     tech_preference?: string;
   }): Promise<any> => {
-    const response = await apiClient.post("/planning/generate", request);
+    const response = await apiClient.post("/planning/generate", request, {
+      timeout: 60000, // 60s timeout for complex LLM generation
+    });
     return response.data;
   },
   
-  savePlan: async (name: string, deadline: string, planData: any): Promise<Project> => {
+  savePlan: async (name: string, deadline?: string, planData?: any): Promise<Project> => {
     const response = await apiClient.post<Project>("/planning/save", planData, {
-      params: { name, deadline },
+      params: { name, deadline: deadline || undefined },
     });
     return response.data;
   }

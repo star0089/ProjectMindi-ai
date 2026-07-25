@@ -8,13 +8,21 @@ from backend.app.models.milestone import Milestone
 from backend.app.models.risk import Risk
 from backend.app.schemas.planning import AIProjectPlan
 
-def save_project_plan(db: Session, name: str, deadline: str, plan_data: AIProjectPlan) -> Project:
+def save_project_plan(db: Session, name: str, deadline: str | None, plan_data: AIProjectPlan) -> Project:
+    # Parse deadline if provided
+    parsed_deadline = None
+    if deadline and isinstance(deadline, str) and deadline.strip():
+        try:
+            parsed_deadline = datetime.strptime(deadline.strip(), "%Y-%m-%d").date()
+        except ValueError:
+            parsed_deadline = None
+
     # 1. Create Project
     db_project = Project(
         name=name,
         description=plan_data.project_overview,
         status="planning",
-        deadline=datetime.strptime(deadline, "%Y-%m-%d").date() if deadline else None
+        deadline=parsed_deadline
     )
     db.add(db_project)
     db.flush() # Get project ID
@@ -48,12 +56,7 @@ def save_project_plan(db: Session, name: str, deadline: str, plan_data: AIProjec
 
     # 4. Create Milestones
     for idx, m in enumerate(plan_data.milestones):
-        ms_deadline = None
-        if deadline:
-            base_date = datetime.strptime(deadline, "%Y-%m-%d")
-            # If deadline_days_offset is 14, we just subtract from deadline or add to today?
-            # Let's say milestone deadline is today + offset
-            ms_deadline = (datetime.utcnow() + timedelta(days=m.deadline_days_offset)).date()
+        ms_deadline = (datetime.utcnow() + timedelta(days=m.deadline_days_offset)).date()
 
         db_milestone = Milestone(
             project_id=db_project.id,

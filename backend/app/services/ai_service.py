@@ -18,7 +18,9 @@ if api_key:
     except Exception as e:
         logger.warning(f"Could not initialize Google Generative AI: {e}")
 
-AVAILABLE_MODELS = ["gemini-1.5-flash", "gemini-2.5-flash", "gemini-1.5-pro", "gemini-pro"]
+import re
+
+AVAILABLE_MODELS = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"]
 
 def _try_gemini_generation(system_instruction: str, prompt: str) -> Dict[str, Any]:
     """Helper to try generating content using available Gemini models."""
@@ -36,10 +38,9 @@ def _try_gemini_generation(system_instruction: str, prompt: str) -> Dict[str, An
             response = model.generate_content(prompt)
             if response and response.text:
                 text = response.text.strip()
-                if text.startswith("```json"):
-                    text = text[7:]
-                if text.endswith("```"):
-                    text = text[:-3]
+                # Clean up potential markdown code fences
+                text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+                text = re.sub(r"\s*```$", "", text)
                 return json.loads(text.strip())
         except Exception as e:
             logger.warning(f"Gemini model {model_name} failed: {e}")
